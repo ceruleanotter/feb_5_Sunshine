@@ -24,12 +24,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-
 
 public class MainActivity extends ActionBarActivity {
 
@@ -71,6 +68,8 @@ public class MainActivity extends ActionBarActivity {
      */
     public static class PlaceholderFragment extends Fragment {
 
+        ArrayAdapter<String> mForecastAdapter;
+
         public PlaceholderFragment() {
         }
 
@@ -94,7 +93,7 @@ public class MainActivity extends ActionBarActivity {
             // Now that we have some dummy forecast data, create an ArrayAdapter.
             // The ArrayAdapter will take data from a source (like our dummy forecast) and
             // use it to populate the ListView it's attached to.
-            ArrayAdapter<String> forecastAdapter =
+            mForecastAdapter =
                 new ArrayAdapter<String>(
                     getActivity(), // The current context (this activity)
                     R.layout.list_item_forecast, // The name of the layout ID.
