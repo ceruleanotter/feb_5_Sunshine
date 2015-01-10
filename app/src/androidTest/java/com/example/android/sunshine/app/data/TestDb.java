@@ -49,8 +49,8 @@ public class TestDb extends AndroidTestCase {
 //        // Note that there will be another table in the DB that stores the
 //        // Android metadata (db version information)
 //        final HashSet<String> tableNameHashSet = new HashSet<String>();
-//        tableNameHashSet.add(LocationEntry.TABLE_NAME);
-//        tableNameHashSet.add(WeatherEntry.TABLE_NAME);
+//        tableNameHashSet.add(WeatherContract.LocationEntry.TABLE_NAME);
+//        tableNameHashSet.add(WeatherContract.WeatherEntry.TABLE_NAME);
 //
 //        mContext.deleteDatabase(WeatherDbHelper.DATABASE_NAME);
 //        SQLiteDatabase db = new WeatherDbHelper(
@@ -74,18 +74,19 @@ public class TestDb extends AndroidTestCase {
 //                tableNameHashSet.isEmpty());
 //
 //        // now, do our tables contain the correct columns?
-//        c = db.rawQuery("PRAGMA table_info(" + LocationEntry.TABLE_NAME + ")", null);
+//        c = db.rawQuery("PRAGMA table_info(" + WeatherContract.LocationEntry.TABLE_NAME + ")",
+//                null);
 //
 //        assertTrue("Error: This means that we were unable to query the database for table information.",
 //                c.moveToFirst());
 //
 //        // Build a HashSet of all of the column names we want to look for
 //        final HashSet<String> locationColumnHashSet = new HashSet<String>();
-//        locationColumnHashSet.add(LocationEntry._ID);
-//        locationColumnHashSet.add(LocationEntry.COLUMN_CITY_NAME);
-//        locationColumnHashSet.add(LocationEntry.COLUMN_COORD_LAT);
-//        locationColumnHashSet.add(LocationEntry.COLUMN_COORD_LONG);
-//        locationColumnHashSet.add(LocationEntry.COLUMN_LOCATION_SETTING);
+//        locationColumnHashSet.add(WeatherContract.LocationEntry._ID);
+//        locationColumnHashSet.add(WeatherContract.LocationEntry.COLUMN_CITY_NAME);
+//        locationColumnHashSet.add(WeatherContract.LocationEntry.COLUMN_COORD_LAT);
+//        locationColumnHashSet.add(WeatherContract.LocationEntry.COLUMN_COORD_LONG);
+//        locationColumnHashSet.add(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING);
 //
 //        int columnNameIndex = c.getColumnIndex("name");
 //        do {
