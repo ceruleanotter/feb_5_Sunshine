@@ -166,7 +166,7 @@ public class TestDb extends AndroidTestCase {
         db.close();
 
         // Return the row ID of our new location
-        return locationRowId;        // First step: Get reference to writable database
+        return locationRowId;
     }
 
 
