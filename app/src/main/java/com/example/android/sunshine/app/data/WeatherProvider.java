@@ -236,6 +236,7 @@ public class WeatherProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         getContext().getContentResolver().notifyChange(uri, null);
+        db.close();
         return returnUri;
     }
 
@@ -275,26 +276,30 @@ public class WeatherProvider extends ContentProvider {
     public int bulkInsert(Uri uri, ContentValues[] values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
-        switch (match) {
-            case WEATHER:
-                db.beginTransaction();
-                int returnCount = 0;
-                try {
-                    for (ContentValues value : values) {
-                        normalizeDate(value);
-                        long _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, value);
-                        if (_id != -1) {
-                            returnCount++;
+        try {
+            switch (match) {
+                case WEATHER:
+                    db.beginTransaction();
+                    int returnCount = 0;
+                    try {
+                        for (ContentValues value : values) {
+                            normalizeDate(value);
+                            long _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, value);
+                            if (_id != -1) {
+                                returnCount++;
+                            }
                         }
+                        db.setTransactionSuccessful();
+                    } finally {
+                        db.endTransaction();
                     }
-                    db.setTransactionSuccessful();
-                } finally {
-                    db.endTransaction();
-                }
-                getContext().getContentResolver().notifyChange(uri, null);
-                return returnCount;
-            default:
-                return super.bulkInsert(uri, values);
+                    getContext().getContentResolver().notifyChange(uri, null);
+                    return returnCount;
+                default:
+                    return super.bulkInsert(uri, values);
+            }
+        } finally {
+            db.close();
         }
     }
 }
