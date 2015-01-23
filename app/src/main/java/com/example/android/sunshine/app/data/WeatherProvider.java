@@ -253,6 +253,8 @@ public class WeatherProvider extends ContentProvider {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         int rowsDeleted;
+        // this makes delete all rows return the number of rows deleted
+        if ( null == selection ) selection = "1";
         switch (match) {
             case WEATHER:
                 rowsDeleted = db.delete(
@@ -265,8 +267,9 @@ public class WeatherProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
+        db.close();
         // Because a null deletes all rows
-        if (selection == null || rowsDeleted != 0) {
+        if (rowsDeleted != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
         return rowsDeleted;
@@ -300,6 +303,7 @@ public class WeatherProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
+        db.close();
         if (rowsUpdated != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
