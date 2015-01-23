@@ -76,6 +76,11 @@ public class TestFetchWeatherTask extends AndroidTestCase{
 
             assertEquals("Error: inserting a location again should return the same ID",
                     locationId, newLocationId);
+
+            // reset our state back to normal
+            getContext().getContentResolver().delete(WeatherContract.LocationEntry.CONTENT_URI,
+                    WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ?",
+                    new String[]{ADD_LOCATION_SETTING});
         }
     }*/
 }
