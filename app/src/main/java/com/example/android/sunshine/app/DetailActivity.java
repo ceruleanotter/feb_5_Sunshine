@@ -44,7 +44,6 @@ public class DetailActivity extends ActionBarActivity {
         }
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -90,8 +89,8 @@ public class DetailActivity extends ActionBarActivity {
 
             // The detail Activity called via intent.  Inspect the intent for forecast data.
             Intent intent = getActivity().getIntent();
-            if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
-                mForecastStr = intent.getStringExtra(Intent.EXTRA_TEXT);
+            mForecastStr = intent.getDataString();
+            if (null != mForecastStr) {
                 ((TextView) rootView.findViewById(R.id.detail_text))
                         .setText(mForecastStr);
             }
