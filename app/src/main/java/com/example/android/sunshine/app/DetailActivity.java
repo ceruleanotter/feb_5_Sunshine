@@ -89,7 +89,10 @@ public class DetailActivity extends ActionBarActivity {
 
             // The detail Activity called via intent.  Inspect the intent for forecast data.
             Intent intent = getActivity().getIntent();
-            mForecastStr = intent.getDataString();
+            if (intent != null) {
+                mForecastStr = intent.getDataString();
+            }
+            
             if (null != mForecastStr) {
                 ((TextView) rootView.findViewById(R.id.detail_text))
                         .setText(mForecastStr);
