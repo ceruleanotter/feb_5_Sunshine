@@ -92,6 +92,14 @@ public class DetailActivity extends ActionBarActivity {
                 WeatherEntry.COLUMN_MIN_TEMP,
         };
 
+        // these constants correspond to the projection defined above, and must change if the
+        // projection changes
+        private static final int COL_WEATHER_ID = 0;
+        private static final int COL_WEATHER_DATE = 1;
+        private static final int COL_WEATHER_DESC = 2;
+        private static final int COL_WEATHER_MAX_TEMP = 3;
+        private static final int COL_WEATHER_MIN_TEMP = 4;
+
         public DetailFragment() {
             setHasOptionsMenu(true);
         }
@@ -159,18 +167,18 @@ public class DetailActivity extends ActionBarActivity {
             if (!data.moveToFirst()) { return; }
 
             String dateString = Utility.formatDate(
-                    data.getLong(data.getColumnIndex(WeatherEntry.COLUMN_DATE)));
+                    data.getLong(COL_WEATHER_DATE));
 
             String weatherDescription =
-                    data.getString(data.getColumnIndex(WeatherEntry.COLUMN_SHORT_DESC));
+                    data.getString(COL_WEATHER_DESC);
 
             boolean isMetric = Utility.isMetric(getActivity());
 
             String high = Utility.formatTemperature(
-                    data.getDouble(data.getColumnIndex(WeatherEntry.COLUMN_MAX_TEMP)), isMetric);
+                    data.getDouble(COL_WEATHER_MAX_TEMP), isMetric);
 
             String low = Utility.formatTemperature(
-                    data.getDouble(data.getColumnIndex(WeatherEntry.COLUMN_MIN_TEMP)), isMetric);
+                    data.getDouble(COL_WEATHER_MIN_TEMP), isMetric);
 
             mForecast = String.format("%s - %s - %s/%s", dateString, weatherDescription, high, low);
 
