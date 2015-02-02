@@ -266,7 +266,6 @@ public class WeatherProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
-        db.close();
         // Because a null deletes all rows
         if (rowsDeleted != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
@@ -302,7 +301,6 @@ public class WeatherProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
-        db.close();
         if (rowsUpdated != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
