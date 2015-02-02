@@ -77,10 +77,10 @@ public class ForecastFragment extends Fragment {
         Cursor cur = getActivity().getContentResolver().query(weatherForLocationUri,
                 null, null, null, sortOrder);
 
-        // The CursorAdapter will take data from our cursor and populate the ListView.
-        // Note that we are using the deprecated FLAG_AUTO_REQUERY.  We'll fix this when we
-        // switch to using Loaders.
-        mForecastAdapter = new ForecastAdapter(getActivity(), cur, android.support.v4.widget.CursorAdapter.FLAG_AUTO_REQUERY);
+        // The CursorAdapter will take data from our cursor and populate the ListView
+        // However, we cannot use FLAG_AUTO_REQUERY since it is deprecated, so we will end
+        // up with an empty list the first time we run.
+        mForecastAdapter = new ForecastAdapter(getActivity(), cur, 0);
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
