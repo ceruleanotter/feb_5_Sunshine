@@ -23,7 +23,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends ActionBarActivity implements ForecastFragment.Callback {
+public class MainActivity extends ActionBarActivity {
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private final String FORECASTFRAGMENT_TAG = "FFTAG";
@@ -131,12 +131,5 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
         Log.v(LOG_TAG, "in onDestroy");
         super.onDestroy();
         // The activity is about to be destroyed.
-    }
-
-    @Override
-    public void onItemSelected(Uri detailUri) {
-        Intent intent = new Intent(this, DetailActivity.class)
-                .setData(detailUri);
-        startActivity(intent);
     }
 }
