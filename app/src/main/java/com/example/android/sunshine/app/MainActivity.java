@@ -23,7 +23,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements ForecastFragment.Callback {
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
@@ -103,44 +103,42 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Override
-    protected void onStart() {
-        Log.v(LOG_TAG, "in onStart");
-        super.onStart();
-        // The activity is about to become visible.
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         String location = Utility.getPreferredLocation( this );
         // update the location in our second pane using the fragment manager
         if ( location != mLocation ) {
-            ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
+            ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
             if ( null != ff ) {
                 ff.onLocationChanged();
+            }
+            DetailFragment df = (DetailFragment)getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
+            if ( null != df ) {
+                df.onLocationChanged(location);
             }
             mLocation = location;
         }
     }
 
     @Override
-    protected void onPause() {
-        Log.v(LOG_TAG, "in onPause");
-        super.onPause();
-        // Another activity is taking focus (this activity is about to be "paused").
-    }
+    public void onItemSelected(Uri contentUri) {
+        if (mTwoPane) {
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            Bundle args = new Bundle();
+            args.putParcelable(DetailFragment.DETAIL_URI, contentUri);
 
-    @Override
-    protected void onStop() {
-        Log.v(LOG_TAG, "in onStop");
-        super.onStop();
-        // The activity is no longer visible (it is now "stopped")
-    }
+            DetailFragment fragment = new DetailFragment();
+            fragment.setArguments(args);
 
-    @Override
-    protected void onDestroy() {
-        Log.v(LOG_TAG, "in onDestroy");
-        super.onDestroy();
-        // The activity is about to be destroyed.
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.weather_detail_container, fragment, DETAILFRAGMENT_TAG)
+                    .commit();
+        } else {
+            Intent intent = new Intent(this, DetailActivity.class)
+                    .setData(contentUri);
+            startActivity(intent);
+        }
     }
 }
