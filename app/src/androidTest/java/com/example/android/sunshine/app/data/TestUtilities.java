@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.example.android.sunshine.app.data;
 
 import android.content.ContentValues;
@@ -10,32 +25,50 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.test.AndroidTestCase;
 
-import com.example.android.sunshine.app.utils.PollingCheck;
+import com.example.android.sunshine.app.Utils.PollingCheck;
 
 import java.util.Map;
 import java.util.Set;
 
-/*
-    Students: These are functions and some test data to make it easier to test your database and
-    Content Provider.  Note that you'll want your WeatherContract class to exactly match the one
-    in our solution to use these as-given.
- */
 public class TestUtilities extends AndroidTestCase {
     static final String TEST_LOCATION = "99705";
     static final long TEST_DATE = 1419033600L;  // December 20th, 2014
 
+    /**
+     * ValidateCursor is used for a cursor that only returns one item. It assumes that the cursor
+     * is raw (not yet on a record).  It moves to the first record, validates the record, and then
+     * closes the cursor.
+     *
+     * @param error The string to include in the error assertion should the test fail.
+     * @param valueCursor The cursor returned from the database.
+     * @param expectedValues The ContentValues that contains the expected values for the cursor.
+     *                       These values are most-likely used in the original database insert or
+     *                       update operation.
+     */
     static void validateCursor(String error, Cursor valueCursor, ContentValues expectedValues) {
         assertTrue("Empty cursor returned. " + error, valueCursor.moveToFirst());
         validateCurrentRecord(error, valueCursor, expectedValues);
         valueCursor.close();
     }
 
+    /**
+     * ValidateCurrentRecord uses the ContentValues to determine if the cursor contains the
+     * expected data.  ContentValues contain sets of Keys and Values, and these correspond to
+     * the database column and the value.  We look up the column index, get the value, and compare
+     * it against the expected value.
+     *
+     * @param error The string to include in the error assertion should the test fail.
+     * @param valueCursor The cursor returned from the database.
+     * @param expectedValues The ContentValues that contains the expected values for the cursor.
+     *                       These values are most-likely used in the original database insert or
+     *                       update operation.
+     */
     static void validateCurrentRecord(String error, Cursor valueCursor, ContentValues expectedValues) {
         Set<Map.Entry<String, Object>> valueSet = expectedValues.valueSet();
         for (Map.Entry<String, Object> entry : valueSet) {
             String columnName = entry.getKey();
             int idx = valueCursor.getColumnIndex(columnName);
-            assertFalse("Column '" + columnName + "' not found. " + error, idx == -1);
+            assertFalse("Column '" + columnName  + "' not found. " + error, idx == -1);
             String expectedValue = entry.getValue().toString();
             assertEquals("Value '" + entry.getValue().toString() +
                     "' did not match the expected value '" +
@@ -43,8 +76,13 @@ public class TestUtilities extends AndroidTestCase {
         }
     }
 
-    /*
-        Students: Use this to create some default weather values for your database tests.
+    /**
+     * Creates weather values for comical fictitious weather scenario to be used in our unit
+     * tests.
+     *
+     * @param locationRowId The location ID that the weather will point to.  This must be a valid
+     *                      row ID in the location table.
+     * @return ContentValues populated with our fictitious weather.
      */
     static ContentValues createWeatherValues(long locationRowId) {
         ContentValues weatherValues = new ContentValues();
@@ -62,9 +100,10 @@ public class TestUtilities extends AndroidTestCase {
         return weatherValues;
     }
 
-    /*
-        Students: You can uncomment this helper function once you have finished creating the
-        LocationEntry part of the WeatherContract.
+    /**
+     * Creates location values for an exotic location to be used in our unit tests.
+     *
+     * @return ContentValues populated with our exotic location.
      */
     static ContentValues createNorthPoleLocationValues() {
         // Create a new map of values, where column names are the keys
@@ -77,9 +116,10 @@ public class TestUtilities extends AndroidTestCase {
         return testValues;
     }
 
-    /*
-        Students: You can uncomment this function once you have finished creating the
-        LocationEntry part of the WeatherContract as well as the WeatherDbHelper.
+    /**
+     * Inserts location values for an exotic location to be used in our unit tests.
+     *
+     * @return Row ID of our exotic location.
      */
     static long insertNorthPoleLocationValues(Context context) {
         // insert our test records into the database
@@ -96,13 +136,9 @@ public class TestUtilities extends AndroidTestCase {
         return locationRowId;
     }
 
-    /*
-        Students: The functions we provide inside of TestProvider use this utility class to test
-        the ContentObserver callbacks using the PollingCheck class that we grabbed from the Android
-        CTS tests.
-
-        Note that this only tests that the onChange function is called; it does not test that the
-        correct Uri is returned.
+    /**
+     * A class that tests that the ContentObserver callback is called.  waitForNotificationOrFail
+     * will wait five seconds to see if the observer callback is called.  If not, it fails.
      */
     static class TestContentObserver extends ContentObserver {
         final HandlerThread mHT;
@@ -130,6 +166,9 @@ public class TestUtilities extends AndroidTestCase {
             mContentChanged = true;
         }
 
+        /**
+         * Waits five seconds to see if the ContentObserver callback is called.
+         */
         public void waitForNotificationOrFail() {
             // Note: The PollingCheck class is taken from the Android CTS (Compatibility Test Suite).
             // It's useful to look at the Android CTS source for ideas on how to test your Android
@@ -145,7 +184,17 @@ public class TestUtilities extends AndroidTestCase {
         }
     }
 
+    /**
+     * Returns an instance of the TestContentObserver class.
+     * @return a TestContentObserver with a new HandlerThread.
+     */
     static TestContentObserver getTestContentObserver() {
         return TestContentObserver.getTestContentObserver();
     }
+
+    /**
+     * Deletes all non-metadata table data from DB
+     */
+
+
 }

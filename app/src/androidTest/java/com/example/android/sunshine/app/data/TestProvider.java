@@ -84,6 +84,20 @@ public class TestProvider extends AndroidTestCase {
     }
 
     /*
+       This helper function deletes all records from both database tables using the database
+       functions only.  This is designed to be used to reset the state of the database until the
+       delete functionality is available in the ContentProvider.
+     */
+    public void deleteAllRecordsFromDB() {
+        WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        db.delete(WeatherEntry.TABLE_NAME, null, null);
+        db.delete(LocationEntry.TABLE_NAME, null, null);
+        db.close();
+    }
+
+    /*
         Student: Refactor this function to use the deleteAllRecordsFromProvider functionality once
         you have implemented delete functionality there.
      */
@@ -230,10 +244,6 @@ public class TestProvider extends AndroidTestCase {
         }
     }
 
-    /*
-        This test uses the provider to insert and then update the data. Uncomment this test to
-        see if your update location is functioning correctly.
-     */
     public void testUpdateLocation() {
         // Create a new map of values, where column names are the keys
         ContentValues values = TestUtilities.createNorthPoleLocationValues();
@@ -511,5 +521,118 @@ public class TestProvider extends AndroidTestCase {
                     cursor, bulkInsertContentValues[i]);
         }
         cursor.close();
+    }
+
+    /**
+     * Helper method to handle insertion of a new location in the weather database.
+     *
+     * @param locationSetting The location string used to request updates from the server.
+     * @param cityName A human-readable city name, e.g "Mountain View"
+     * @param lat the latitude of the city
+     * @param lon the longitude of the city
+     * @return the row ID of the added location.
+     */
+    public long addLocation(String locationSetting, String cityName, double lat, double lon) {
+        long locationId;
+
+        Log.v(LOG_TAG, "inserting " + cityName + ", with coord: " + lat + ", " + lon);
+
+        // First, check if the location with this city name exists in the db
+        Cursor locationCursor = getContext().getContentResolver().query(
+                WeatherContract.LocationEntry.CONTENT_URI,
+                new String[]{LocationEntry._ID},
+                LocationEntry.COLUMN_LOCATION_SETTING + " = ?",
+                new String[]{locationSetting},
+                null);
+
+        if (locationCursor.moveToFirst()) {
+            int locationIdIndex = locationCursor.getColumnIndex(LocationEntry._ID);
+            locationId = locationCursor.getLong(locationIdIndex);
+        } else {
+            // Now that the content provider is set up, inserting rows of data is pretty simple.
+            // First create a ContentValues object to hold the data you want to insert.
+            ContentValues locationValues = new ContentValues();
+
+            // Then add the data, along with the corresponding name of the data type,
+            // so the content provider knows what kind of value is being inserted.
+            locationValues.put(LocationEntry.COLUMN_CITY_NAME, cityName);
+            locationValues.put(LocationEntry.COLUMN_LOCATION_SETTING, locationSetting);
+            locationValues.put(LocationEntry.COLUMN_COORD_LAT, lat);
+            locationValues.put(LocationEntry.COLUMN_COORD_LONG, lon);
+
+            // Finally, insert location data into the database.
+            Uri insertedUri = getContext().getContentResolver().insert(
+                    WeatherContract.LocationEntry.CONTENT_URI,
+                    locationValues
+            );
+
+            // The resulting URI contains the ID for the row.  Extract the locationId from the Uri.
+            locationId = ContentUris.parseId(insertedUri);
+        }
+
+        locationCursor.close();
+        // Wait, that worked?  Yes!
+        return locationId;
+    }
+
+    static final String ADD_LOCATION_SETTING = "Sunnydale, CA";
+    static final String ADD_LOCATION_CITY = "Sunnydale";
+    static final double ADD_LOCATION_LAT = 34.425833;
+    static final double ADD_LOCATION_LON = -119.714167;
+
+
+    /*
+        Students: uncomment testAddLocation after you have written the AddLocation function.
+     */
+    public void testAddLocation() {
+        long locationId = addLocation(ADD_LOCATION_SETTING, ADD_LOCATION_CITY,
+                ADD_LOCATION_LAT, ADD_LOCATION_LON);
+
+        // does addLocation return a valid record ID?
+        assertFalse("Error: addLocation returned an invalid ID on insert",
+                locationId == -1);
+
+        // test all this twice
+        for ( int i = 0; i < 2; i++ ) {
+
+            // does the ID point to our location?
+            Cursor locationCursor = getContext().getContentResolver().query(
+                    WeatherContract.LocationEntry.CONTENT_URI,
+                    new String[]{
+                            LocationEntry._ID,
+                            LocationEntry.COLUMN_LOCATION_SETTING,
+                            LocationEntry.COLUMN_CITY_NAME,
+                            LocationEntry.COLUMN_COORD_LAT,
+                            LocationEntry.COLUMN_COORD_LONG
+                    },
+                    LocationEntry.COLUMN_LOCATION_SETTING + " = ?",
+                    new String[]{ADD_LOCATION_SETTING},
+                    null);
+
+            // these match the indices of the projection
+            if (locationCursor.moveToFirst()) {
+                assertEquals("Error: the queried value of locationId does not match the returned value" +
+                        "from addLocation", locationCursor.getLong(0), locationId);
+                assertEquals("Error: the queried value of location setting is incorrect",
+                        locationCursor.getString(1), ADD_LOCATION_SETTING);
+                assertEquals("Error: the queried value of location city is incorrect",
+                        locationCursor.getString(2), ADD_LOCATION_CITY);
+                assertEquals("Error: the queried value of latitude is incorrect",
+                        locationCursor.getDouble(3), ADD_LOCATION_LAT);
+                assertEquals("Error: the queried value of longitude is incorrect",
+                        locationCursor.getDouble(4), ADD_LOCATION_LON);
+            }
+
+            // there should be no more records
+            assertFalse("Error: there should be only one record returned from a location query",
+                    locationCursor.moveToNext());
+
+            // add the location again
+            long newLocationId = addLocation(ADD_LOCATION_SETTING, ADD_LOCATION_CITY,
+                    ADD_LOCATION_LAT, ADD_LOCATION_LON);
+
+            assertEquals("Error: inserting a location again should return the same ID",
+                    locationId, newLocationId);
+        }
     }
 }

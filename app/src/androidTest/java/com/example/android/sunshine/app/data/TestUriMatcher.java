@@ -39,8 +39,7 @@ public class TestUriMatcher extends AndroidTestCase {
 
     /*
         Students: This function tests that your UriMatcher returns the correct integer value
-        for each of the Uri types that our ContentProvider can handle.  Uncomment this when you are
-        ready to test your UriMatcher.
+        for each of the Uri types that our ContentProvider can handle.
      */
     public void testUriMatcher() {
         UriMatcher testMatcher = WeatherProvider.buildUriMatcher();
